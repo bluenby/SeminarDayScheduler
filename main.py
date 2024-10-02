@@ -1,11 +1,8 @@
 """Linear assignment example."""
 from ortools.graph.python import min_cost_flow
 import csv
-<<<<<<< Updated upstream
 import tkinter as tk
 from tkinter import filedialog
-=======
->>>>>>> Stashed changes
 
 
 def main():
