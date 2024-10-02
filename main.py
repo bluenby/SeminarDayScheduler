@@ -1,8 +1,11 @@
 """Linear assignment example."""
 from ortools.graph.python import min_cost_flow
 import csv
+<<<<<<< Updated upstream
 import tkinter as tk
 from tkinter import filedialog
+=======
+>>>>>>> Stashed changes
 
 
 def main():
@@ -21,6 +24,27 @@ def main():
     
 
     # Define the directed graph for the flow.
+    students = []
+    classes = ["skibidi seminar", "business seminar", "cube seminar", "orange seminar", "cheese seminar"]
+
+    input_data_lines = ["doilus@stage.com,skibidi seminar,business seminar,cheese seminar,orange seminar,cube seminar"]
+    num_students = len(input_data_lines)
+    num_classes = len(classes)
+
+
+
+    for i in range(len(input_data_lines)):
+        line = input_data_lines[i].split(",")
+        pref_class_ids = []
+        for j in range(len(line)):
+            #ensure that it's not the email that gets sent
+            if j > 0:
+                # find ID of class that student wants
+                # insert at preference
+                pref_class_ids[j - 1] = classes.index(line[j])
+        
+
+
     start_nodes = (
         [0, 0, 0, 0] + [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4] + [5, 6, 7, 8]
     )
