@@ -30,26 +30,43 @@ def main(period):
 
     source_start_nodes = []
     source_end_nodes = []
+    source_costs = []
 
     student_start_nodes = []
     student_end_nodes = []
+    student_costs = []
 
     #initialize all class
     class_start_nodes = [x+1 for x in range(num_classes)] * 2
-    # tldr loop through this shit twice
+
+    # tldr loop through this shit twice because of the two costs thingy
+    class_costs = [0] * num_classes
+    class_costs += [-1000000] * num_classes
+    # priority to fill minimum
+    
 
     student_index = 0
 
     classes_per_period = 5
+
+    #index in the csv where periods start
+    # for example: time, time, CLASS 1 would be index 2
     initial_index = 2
 
-    min_per_class = 5
+    min_per_class = 1
+
+    
+
+    # subtract off MIN VAL to make sure all capacities are as intended
+    for i in range(num_classes):
+        class_capacities[i] -= min_per_class
 
     for student in reader:
         student_index += 1
         # create edge between source and students
         source_start_nodes += [0]
         source_end_nodes += [num_classes + student_index]
+        source_costs += [0]
         for j in range(5):
             # find ID of class that student wants
             # insert at preference
@@ -59,9 +76,14 @@ def main(period):
             # connect student nodes to classes
             student_start_nodes += [num_classes + student_index]
             student_end_nodes += [class_id + 1]
+            # j is cost, weighted by weight. heavier means more influence
+            weight = 1
+            student_costs += [weight * j]
+
         
     # 0, number of classes, number of students, THEN the sink
     # 1 + num_classes + student_index
+    # this should be the terminus
     class_end_nodes = [num_classes + student_index + 1] * len(class_start_nodes) * 2
 
     source_capacities = [1] * len(source_start_nodes)
@@ -72,32 +94,23 @@ def main(period):
 
 
     start_nodes = (
-        
+        source_start_nodes + student_start_nodes + class_start_nodes
     )
     end_nodes = (
-        [1, 2, 3, 4] + [5, 6, 7, 8, 5, 6, 7, 8, 5, 6, 7, 8, 5, 6, 7, 8] + [9, 9, 9, 9]
+        source_end_nodes + student_end_nodes + class_end_nodes
     )
     capacities = (
-        [1, 1, 1, 1] + [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] + [1, 1, 1, 1]
+        source_capacities + student_capacities + class_capacities
     )
     costs = (
-        [0, 0, 0, 0]
-        + [90, 76, 75, 70, 35, 85, 55, 65, 125, 95, 90, 105, 45, 110, 95, 115]
-        + [0, 0, 0, 0]
+        source_costs + student_costs + class_costs
     )
-
-
-    for student in reader:
-        num_students += 1
-        start_nodes += [0]
-        end_nodes += [student_index]
-        for preference in range(5):
             
 
     source = 0
-    sink = 9
+    sink = num_classes + student_index + 1
     tasks = 4
-    supplies = [tasks, 0, 0, 0, 0, 0, 0, 0, 0, -tasks]
+    supplies = [student_index] + [0] * (num_classes + student_index) + [-student_index]
 
     # Add each arc.
     for i in range(len(start_nodes)):
@@ -115,21 +128,16 @@ def main(period):
         print("Total cost = ", smcf.optimal_cost())
         print()
         for arc in range(smcf.num_arcs()):
-            # Can ignore arcs leading out of source or into sink.
-            if smcf.tail(arc) != source and smcf.head(arc) != sink:
-
-                # Arcs in the solution have a flow value of 1. Their start and end nodes
-                # give an assignment of worker to task.
-                if smcf.flow(arc) > 0:
-                    print(
-                        "Worker %d assigned to task %d.  Cost = %d"
-                        % (smcf.tail(arc), smcf.head(arc), smcf.unit_cost(arc))
-                    )
+            if smcf.flow(arc) > 0 and smcf.tail(arc) != source and smcf.head(arc) != sink:
+                print(
+                    "Node %d assigned to node %d.  Cost = %d, Flow = %d"
+                    % (smcf.tail(arc), smcf.head(arc), smcf.unit_cost(arc), smcf.flow(arc))
+                )
     else:
         print("There was an issue with the min cost flow input.")
         print(f"Status: {status}")
 
 
 if __name__ == "__main__":
-    for period in range(6):
+    for period in range(1):
         main(period)
