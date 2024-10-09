@@ -11,10 +11,12 @@ file = open(file_path)
 
 reader = csv.reader(file)
 
-print([x for x in range(10)])
+d = {}
 
 for line in reader:
-    print(line[0] + ": " + str(line[1:]))
+    d[line[0]] = line[1]
+
+print(d)
 
 file.close()
 

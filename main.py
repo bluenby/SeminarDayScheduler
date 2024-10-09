@@ -4,54 +4,52 @@ import csv
 import tkinter as tk
 from tkinter import filedialog
 
-prefrences_csv = 0
 preferences_reader = 0
 
-studenttograde_csv = 0
-studenttograde_reader = 0
+studenttograde = {}
 
-classes_csv = 0
 classes_reader = 0
+
+classes = []
+class_capacities = [[]]*4
 
 def csv_processing():
 
-    global preferences_csv, preferences_reader, studenttograde_csv, studenttograde_reader, classes_csv, classes_reader
+    root = tk.Tk()
+    root.withdraw()
+
+    global preferences_reader, studenttograde, classes_reader, classes, class_capacities
 
     input("Press any button to select the file with the student preferences for each seminar")
 
     preferences_csv = filedialog.askopenfilename()
     preferences_reader = csv.reader(preferences_csv)
 
-    preferences_csv = "TO BE HARDCODED"
-    preferences_reader = csv.reader(preferences_csv)
+    studenttograde_csv = "TO BE HARDCODED"
+    studenttograde_reader = csv.reader(preferences_csv)
 
     input("Press any button to select the file with all the avaliable seminars and their capacities.")
 
-    preferences_csv = filedialog.askopenfilename()
-    preferences_reader = csv.reader(preferences_csv)
+    classes_csv = filedialog.askopenfilename()
+    classes_reader = csv.reader(preferences_csv)
+
+    for aclass in classes_reader:
+        classes += aclass[0]
+        for x, capacity in enumerate(aclass[1:]):
+            class_capacities[x] += capacity
+
+    for student in studenttograde_reader:
+        studenttograde[student[0]] = student[1]
+
+    
 
 def main(period):
 
-    global preferences_reader
+    global preferences_reader, classes, class_capacities, studenttograde
 
     """Solving an Assignment Problem with MinCostFlow."""
     # Instantiate a SimpleMinCostFlow solver.
     smcf = min_cost_flow.SimpleMinCostFlow()
-
-    root = tk.Tk()
-    root.withdraw()
-
-    # input("Press any button to choose a file: ")
-
-    # file_path = filedialog.askopenfilename()
-    csvfile = open("mock.csv")
-    reader = csv.reader(csvfile)
-
-    # Define the directed graph for the flow.
-    students = []
-    classes = ["skibidi seminar", "business seminar", "cube seminar", "orange seminar", "cheese seminar"]
-    
-    class_capacities = [10, 15, 20, 20, 15]
 
     num_classes = len(classes)
 
@@ -176,5 +174,8 @@ def main(period):
 
 
 if __name__ == "__main__":
+
+    csv_processing()
+
     for period in range(1):
         main(period)
