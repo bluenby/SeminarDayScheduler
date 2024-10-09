@@ -22,6 +22,7 @@ def main(period):
     # Define the directed graph for the flow.
     students = []
     classes = ["skibidi seminar", "business seminar", "cube seminar", "orange seminar", "cheese seminar"]
+    
     class_capacities = [10, 15, 20, 20, 15]
 
     num_classes = len(classes)
@@ -55,6 +56,8 @@ def main(period):
 
     min_per_class = 1
 
+    emails = []
+
     
 
     # subtract off MIN VAL to make sure all capacities are as intended
@@ -67,6 +70,9 @@ def main(period):
         source_start_nodes += [0]
         source_end_nodes += [num_classes + student_index]
         source_costs += [0]
+        senior_flag = False
+        emails += [student[0]]
+
         for j in range(5):
             # find ID of class that student wants
             # insert at preference
@@ -78,6 +84,8 @@ def main(period):
             student_end_nodes += [class_id + 1]
             # j is cost, weighted by weight. heavier means more influence
             weight = 10000 - student_index
+            if senior_flag:
+                weight *= 10
             student_costs += [weight * j]
 
         
@@ -109,7 +117,6 @@ def main(period):
 
     source = 0
     sink = num_classes + student_index + 1
-    tasks = 4
     supplies = [student_index] + [0] * (num_classes + student_index) + [-student_index]
 
     # Add each arc.
@@ -124,14 +131,16 @@ def main(period):
     # Find the minimum cost flow between node 0 and node 10.
     status = smcf.solve()
 
+    final_data = []
+
     if status == smcf.OPTIMAL:
         print("Total cost = ", smcf.optimal_cost())
         print()
         for arc in range(smcf.num_arcs()):
             if smcf.flow(arc) > 0 and smcf.tail(arc) != source and smcf.head(arc) != sink:
                 print(
-                    "Node %d assigned to node %d.  Cost = %d, Flow = %d"
-                    % (smcf.tail(arc), smcf.head(arc), smcf.unit_cost(arc), smcf.flow(arc))
+                    "Student %s assigned to class %s.  Cost = %d, Flow = %d"
+                    % (emails[smcf.tail(arc) - num_classes - 1], classes[smcf.head(arc) - 1], smcf.unit_cost(arc), smcf.flow(arc))
                 )
     else:
         print("There was an issue with the min cost flow input.")
