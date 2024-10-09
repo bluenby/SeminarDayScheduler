@@ -4,8 +4,36 @@ import csv
 import tkinter as tk
 from tkinter import filedialog
 
+prefrences_csv = 0
+preferences_reader = 0
+
+studenttograde_csv = 0
+studenttograde_reader = 0
+
+classes_csv = 0
+classes_reader = 0
+
+def csv_processing():
+
+    global preferences_csv, preferences_reader, studenttograde_csv, studenttograde_reader, classes_csv, classes_reader
+
+    input("Press any button to select the file with the student preferences for each seminar")
+
+    preferences_csv = filedialog.askopenfilename()
+    preferences_reader = csv.reader(preferences_csv)
+
+    preferences_csv = "TO BE HARDCODED"
+    preferences_reader = csv.reader(preferences_csv)
+
+    input("Press any button to select the file with all the avaliable seminars and their capacities.")
+
+    preferences_csv = filedialog.askopenfilename()
+    preferences_reader = csv.reader(preferences_csv)
 
 def main(period):
+
+    global preferences_reader
+
     """Solving an Assignment Problem with MinCostFlow."""
     # Instantiate a SimpleMinCostFlow solver.
     smcf = min_cost_flow.SimpleMinCostFlow()
@@ -13,10 +41,10 @@ def main(period):
     root = tk.Tk()
     root.withdraw()
 
-    input("Press any button to choose a file: ")
+    # input("Press any button to choose a file: ")
 
-    file_path = filedialog.askopenfilename()
-    csvfile = open(file_path)
+    # file_path = filedialog.askopenfilename()
+    csvfile = open("mock.csv")
     reader = csv.reader(csvfile)
 
     # Define the directed graph for the flow.
@@ -64,7 +92,7 @@ def main(period):
     for i in range(num_classes):
         class_capacities[i] -= min_per_class
 
-    for student in reader:
+    for student in preferences_reader:
         student_index += 1
         # create edge between source and students
         source_start_nodes += [0]
