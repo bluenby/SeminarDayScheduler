@@ -45,7 +45,7 @@ def csv_processing():
 
     input("Press any button to select the file with the rooms that classes will be in.")
 
-    roomclass_csv = filedialog.askopenfilename()
+    roomclass_csv = filedialog.askopenfilename() # might be hardcoded or already provided
     roomclass_reader = csv.reader(preferences_csv)
 
 def main(period):
