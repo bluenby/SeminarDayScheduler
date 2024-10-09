@@ -41,7 +41,7 @@ def main(period):
 
     # tldr loop through this shit twice because of the two costs thingy
     class_costs = [0] * num_classes
-    class_costs += [-1000000] * num_classes
+    class_costs += [-10000000000] * num_classes
     # priority to fill minimum
     
 
@@ -77,7 +77,7 @@ def main(period):
             student_start_nodes += [num_classes + student_index]
             student_end_nodes += [class_id + 1]
             # j is cost, weighted by weight. heavier means more influence
-            weight = 1
+            weight = 10000 - student_index
             student_costs += [weight * j]
 
         
