@@ -2,6 +2,7 @@
 from ortools.graph.python import min_cost_flow
 import csv
 import tkinter as tk
+from tkinter import Tk
 from tkinter import filedialog
 
 preferences_reader = 0
@@ -18,42 +19,58 @@ class_capacities = [[]]*4
 
 def csv_processing():
 
-    root = tk.Tk()
+    root = Tk()
+    root.attributes('-topmost',True)
     root.withdraw()
 
-    global preferences_reader, studenttograde, classes_reader, classes, class_capacities
+    global preferences_reader, studenttograde, classes_reader, classes, class_capacities, emails
 
     input("Press any button to select the file with the student preferences for each seminar")
-
+    
     preferences_csv = filedialog.askopenfilename()
     preferences_reader = csv.reader(preferences_csv)
+    root.destroy()
 
-    studenttograde_csv = "TO BE HARDCODED"
+    input("Press any button to select the file with student grade info.")
+    root = Tk()
+    root.attributes('-topmost',True)
+    root.withdraw()
+    studenttograde_csv = filedialog.askopenfilename()
     studenttograde_reader = csv.reader(studenttograde_csv)
+
+    for student in studenttograde_reader:
+        print(student[0],student[1])
+        studenttograde[student[0]] = student[1]
+        emails += [student[0]]
+
+    root.destroy()
 
     input("Press any button to select the file with all the avaliable seminars and their capacities.")
 
+    root = Tk()
+    root.attributes('-topmost',True)
+    root.withdraw()
     classes_csv = filedialog.askopenfilename()
     classes_reader = csv.reader(classes_csv)
+    root.destroy()
 
     for aclass in classes_reader:
         classes += aclass[0]
         for x, capacity in enumerate(aclass[1:]):
             class_capacities[x] += capacity
 
-    for student in studenttograde_reader:
-        studenttograde[student[0]] = student[1]
+    
 
     
 
-    input("Press any button to select the file with the rooms that classes will be in.")
+    #input("Press any button to select the file with the rooms that classes will be in.")
 
-    roomclass_csv = filedialog.askopenfilename() # might be hardcoded or already provided
-    roomclass_reader = csv.reader(preferences_csv)
+    #roomclass_csv = filedialog.askopenfilename() # might be hardcoded or already provided
+    #roomclass_reader = csv.reader(preferences_csv)
 
 def main(period):
 
-    global preferences_reader, classes, class_capacities, studenttograde, emails, p1, p2, p3, p4
+    global preferences_reader, classes, class_capacities, studenttograde, emails, schedules
 
     """Solving an Assignment Problem with MinCostFlow."""
     # Instantiate a SimpleMinCostFlow solver.
@@ -181,6 +198,7 @@ def main(period):
                     "Student %s assigned to class %s.  Cost = %d, Flow = %d"
                     % (emails[smcf.tail(arc) - num_classes - 1], classes[smcf.head(arc) - 1], smcf.unit_cost(arc), smcf.flow(arc))
                 )
+                schedules[period] += [smcf.head(arc) - 1]
 
     else:
         print("There was an issue with the min cost flow input.")
@@ -191,5 +209,7 @@ if __name__ == "__main__":
 
     csv_processing()
 
-    for period in range(1):
+    for period in range(4):
         main(period)
+    for i in range(len(emails)):
+        print(emails[0], schedules[0], schedules[1], schedules[2], schedules[3])
