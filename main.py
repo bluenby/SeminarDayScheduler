@@ -2,7 +2,6 @@
 from ortools.graph.python import min_cost_flow
 import csv
 import tkinter as tk
-from tkinter import Tk
 from tkinter import filedialog
 
 preferences_reader = 0
@@ -19,7 +18,7 @@ class_capacities = [[]]*4
 
 def csv_processing():
 
-    root = Tk()
+    root = tk.Tk()
     root.attributes('-topmost',True)
     root.withdraw()
 
@@ -27,37 +26,29 @@ def csv_processing():
 
     input("Press any button to select the file with the student preferences for each seminar")
     
-    preferences_csv = filedialog.askopenfilename()
+    preferences_csv = open(filedialog.askopenfilename())
     preferences_reader = csv.reader(preferences_csv)
-    root.destroy()
+    
 
     input("Press any button to select the file with student grade info.")
-    root = Tk()
-    root.attributes('-topmost',True)
-    root.withdraw()
-    studenttograde_csv = filedialog.askopenfilename()
+    studenttograde_csv = open(filedialog.askopenfilename())
     studenttograde_reader = csv.reader(studenttograde_csv)
 
     for student in studenttograde_reader:
-        print(student[0],student[1])
+        #print(student)
+        #print(student[0],student[1])
         studenttograde[student[0]] = student[1]
         emails += [student[0]]
 
-    root.destroy()
-
     input("Press any button to select the file with all the avaliable seminars and their capacities.")
 
-    root = Tk()
-    root.attributes('-topmost',True)
-    root.withdraw()
-    classes_csv = filedialog.askopenfilename()
+    classes_csv = open(filedialog.askopenfilename())
     classes_reader = csv.reader(classes_csv)
-    root.destroy()
 
     for aclass in classes_reader:
-        classes += aclass[0]
+        classes += [aclass[0]]
         for x, capacity in enumerate(aclass[1:]):
-            class_capacities[x] += capacity
+            class_capacities[x] += [int(capacity)]
 
     
 
@@ -93,8 +84,8 @@ def main(period):
 
     # tldr loop through this shit twice because of the two costs thingy
 
-    class_costs += [-10000000000] * num_classes
-    class_costs = [0] * num_classes
+    class_costs = [-10000000000] * num_classes
+    class_costs += [0] * num_classes
     
     # priority to fill minimum
     
@@ -111,15 +102,15 @@ def main(period):
 
     
     # the malicious
-    class_capacities += [min_per_class] * num_classes
+    class_capacities[period] += [min_per_class] * num_classes
     # subtract off MIN VAL to make sure all capacities are as intended
     for i in range(num_classes):
-        if class_capacities[i] >= min_per_class:
-            class_capacities[i] -= min_per_class
+        if class_capacities[period][i] >= min_per_class:
+            class_capacities[period][i] -= min_per_class
         else:
             # set corresp. to 0
-            class_capacities[i + num_classes] = class_capacities[i]
-            class_capacities[i] = 0
+            class_capacities[period][i + num_classes] = class_capacities[period][i]
+            class_capacities[period][i] = 0
     
     
 
@@ -129,8 +120,7 @@ def main(period):
         source_start_nodes += [0]
         source_end_nodes += [num_classes + student_index]
         source_costs += [0]
-        senior_flag = (studenttograde[student[1].split("@")[0]] == 12)
-        emails += [student[1]]
+        senior_flag = (studenttograde[student[1]] == 12)
 
         for j in range(5):
             # find ID of class that student wants
@@ -166,7 +156,7 @@ def main(period):
         source_end_nodes + student_end_nodes + class_end_nodes
     )
     capacities = (
-        source_capacities + student_capacities + class_capacities
+        source_capacities + student_capacities + class_capacities[period]
     )
     costs = (
         source_costs + student_costs + class_costs
@@ -211,5 +201,6 @@ if __name__ == "__main__":
 
     for period in range(4):
         main(period)
+    print(emails)
     for i in range(len(emails)):
-        print(emails[0], schedules[0], schedules[1], schedules[2], schedules[3])
+        print(emails[i], schedules[0][i], schedules[1][i], schedules[2][i], schedules[3][i])
