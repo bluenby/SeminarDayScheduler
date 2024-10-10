@@ -9,10 +9,7 @@ preferences_reader = 0
 studenttograde = {}
 
 emails = []
-p1 = []
-p2 = []
-p3 = []
-p4 = []
+schedules = [[]]*4
 
 classes_reader = 0
 
@@ -175,8 +172,6 @@ def main(period):
     # Find the minimum cost flow between node 0 and node 10.
     status = smcf.solve()
 
-    final_data = []
-
     if status == smcf.OPTIMAL:
         print("Total cost = ", smcf.optimal_cost())
         print()
@@ -186,6 +181,7 @@ def main(period):
                     "Student %s assigned to class %s.  Cost = %d, Flow = %d"
                     % (emails[smcf.tail(arc) - num_classes - 1], classes[smcf.head(arc) - 1], smcf.unit_cost(arc), smcf.flow(arc))
                 )
+
     else:
         print("There was an issue with the min cost flow input.")
         print(f"Status: {status}")
