@@ -10,12 +10,14 @@ preferences_csv = 0
 studenttograde = {}
 
 emails = []
-schedules = [[]]*4
+schedules = []
 
 classes_reader = 0
+num_period = 4
 
 classes = []
-class_capacities = [[]]*4
+class_capacities = [[] for _ in range(num_period)]
+master_list = []
 
 def csv_processing():
 
@@ -23,7 +25,7 @@ def csv_processing():
     root.attributes('-topmost',True)
     root.withdraw()
 
-    global preferences_csv, preferences_reader, studenttograde, classes_reader, classes, class_capacities, emails
+    global num_period, preferences_csv, preferences_reader, studenttograde, classes_reader, classes, class_capacities, emails, master_list, schedules
 
     input("Press any button to select the file with the student preferences for each seminar")
     
@@ -41,6 +43,10 @@ def csv_processing():
         studenttograde[student[0]] = student[1]
         emails += [student[0]]
 
+    schedules = []
+    for i in range(num_period):
+        schedules += [[0] * len(emails)]
+
     input("Press any button to select the file with all the avaliable seminars and their capacities.")
 
     classes_csv = open(filedialog.askopenfilename())
@@ -50,6 +56,12 @@ def csv_processing():
         classes += [aclass[0]]
         for x, capacity in enumerate(aclass[1:]):
             class_capacities[x] += [int(capacity)]
+    master_list = []
+    for i in range(len(classes)):
+        ohio = []
+        for j in range(num_period):
+            ohio += [ [] ]
+        master_list += [ohio]
 
     
 
@@ -112,6 +124,7 @@ def main(period):
             class_capacities[period][i] = 0
     
     
+    preferences_csv.seek(0)
     preferences_reader = csv.reader(preferences_csv)
     for student in preferences_reader:
         student_index += 1
@@ -161,7 +174,6 @@ def main(period):
         source_costs + student_costs + class_costs
     )
     print("PHASE 1")
-    print(start_nodes, end_nodes, capacities, costs)
             
 
     source = 0
@@ -189,7 +201,10 @@ def main(period):
                     "Student %s assigned to class %s.  Cost = %d, Flow = %d"
                     % (emails[smcf.tail(arc) - num_classes - 1], classes[smcf.head(arc) - 1], smcf.unit_cost(arc), smcf.flow(arc))
                 )
-                schedules[period] += [smcf.head(arc) - 1]
+                schedules[period][smcf.tail(arc) - num_classes - 1] = smcf.head(arc) - 1
+                master_list[smcf.head(arc) - 1][period] += [emails[smcf.tail(arc) - num_classes - 1]]
+
+                print(master_list[0][period])
 
     else:
         print("There was an issue with the min cost flow input.")
@@ -197,12 +212,25 @@ def main(period):
 
 
 if __name__ == "__main__":
-
     csv_processing()
 
-    for period in range(4):
+    for period in range(num_period):
         main(period)
         print("Yup")
 
+    location = filedialog.askdirectory()
+
     for i in range(len(emails)):
-        print(emails[i], schedules[0][i], schedules[1][i], schedules[2][i], schedules[3][i])
+        fin = []
+        for j in range(num_period):
+            fin += [str(schedules[j][i])]
+        print(emails[i], fin)
+
+        f = open(location + "Student" + str(i) + ".csv","x")
+        f.write(",".join(fin))
+        f.close()
+    
+    # master_list: it works like, master_list[class][period]
+    for i in range(len(classes)):
+        for j in range(4):
+            print(classes[i], "Period " + str(j), master_list[i][j])
