@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import filedialog
 
 preferences_reader = 0
+preferences_csv = 0
 
 studenttograde = {}
 
@@ -22,12 +23,12 @@ def csv_processing():
     root.attributes('-topmost',True)
     root.withdraw()
 
-    global preferences_reader, studenttograde, classes_reader, classes, class_capacities, emails
+    global preferences_csv, preferences_reader, studenttograde, classes_reader, classes, class_capacities, emails
 
     input("Press any button to select the file with the student preferences for each seminar")
     
     preferences_csv = open(filedialog.askopenfilename())
-    preferences_reader = csv.reader(preferences_csv)
+    #preferences_reader = csv.reader(preferences_csv)
     
 
     input("Press any button to select the file with student grade info.")
@@ -61,15 +62,13 @@ def csv_processing():
 
 def main(period):
 
-    global preferences_reader, classes, class_capacities, studenttograde, emails, schedules
+    global preferences_csv, preferences_reader, classes, class_capacities, studenttograde, emails, schedules
 
     """Solving an Assignment Problem with MinCostFlow."""
     # Instantiate a SimpleMinCostFlow solver.
     smcf = min_cost_flow.SimpleMinCostFlow()
 
     num_classes = len(classes)
-
-    period = 0
 
     source_start_nodes = []
     source_end_nodes = []
@@ -113,7 +112,7 @@ def main(period):
             class_capacities[period][i] = 0
     
     
-
+    preferences_reader = csv.reader(preferences_csv)
     for student in preferences_reader:
         student_index += 1
         # create edge between source and students
@@ -161,6 +160,8 @@ def main(period):
     costs = (
         source_costs + student_costs + class_costs
     )
+    print("PHASE 1")
+    print(start_nodes, end_nodes, capacities, costs)
             
 
     source = 0
@@ -201,6 +202,7 @@ if __name__ == "__main__":
 
     for period in range(4):
         main(period)
-    print(emails)
+        print("Yup")
+
     for i in range(len(emails)):
         print(emails[i], schedules[0][i], schedules[1][i], schedules[2][i], schedules[3][i])
