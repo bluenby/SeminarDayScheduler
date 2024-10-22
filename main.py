@@ -3,6 +3,35 @@ from ortools.graph.python import min_cost_flow
 import csv
 import tkinter as tk
 from tkinter import filedialog
+import threading
+
+window = Tk()
+
+def tkwindowthread():
+
+    global window
+
+    width = window.winfo_screenwidth() / 8
+    height = window.winfo_screenheight() / 2
+    
+    window.rowconfigure([x for x in range(6)], weight=1, minsize=height/8)
+    window.columnconfigure([x for x in range(2)], weight=1, minsize=width/2)
+
+    frame = tk.Frame(
+        master=window,
+        relief=tk.RAISED,
+        borderwidth=1
+    )
+    frame.grid(row=i, column=j)
+    label = tk.Label(master=frame, text=f"Row {i}\nColumn {j}")
+    label.pack()
+
+    
+
+    #wip
+    print("wip")
+
+    window.mainloop()
 
 preferences_reader = 0
 preferences_csv = 0
@@ -30,8 +59,13 @@ def csv_processing():
     input("Press any button to select the file with the student preferences for each seminar")
     
     preferences_csv = open(filedialog.askopenfilename())
+<<<<<<< Updated upstream
     #preferences_reader = csv.reader(preferences_csv)
     
+=======
+    preferences_reader = csv.reader(preferences_csv)
+    root.destroy()
+>>>>>>> Stashed changes
 
     input("Press any button to select the file with student grade info.")
     studenttograde_csv = open(filedialog.askopenfilename())
@@ -212,6 +246,12 @@ def main(period):
 
 
 if __name__ == "__main__":
+<<<<<<< Updated upstream
+=======
+
+    tkwindowthread()
+
+>>>>>>> Stashed changes
     csv_processing()
 
     for period in range(num_period):
