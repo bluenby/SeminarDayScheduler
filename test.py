@@ -7,8 +7,14 @@ root.withdraw()
 
 file_path = filedialog.askopenfilename()
 
-file = open(file_path)
+thing = ["", "", ""]
 
+def set_string_of_array(index, array):
+    array[index] = "hello"
+
+set_string_of_array(2, thing)
+
+print(thing)
 reader = csv.reader(file)
 
 d = {}

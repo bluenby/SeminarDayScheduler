@@ -5,11 +5,43 @@ import tkinter as tk
 from tkinter import filedialog
 import threading
 
-window = Tk()
+window = tk.Tk()
+
+output_directory = tk.StringVar()
+
+status = tk.StringVar()
+
+csv_files = [tk.StringVar() for _ in range(3)]
+
+def get_file_name():
+
+    global csv_files
+
+    root = tk.Tk()
+    root.attributes('-topmost',True)
+    root.withdraw()
+
+    for var in csv_files:
+        if var.get() == "":
+            var.set(filedialog.askopenfilename())
+            break
+
+    root.destroy()
+
+def get_output_folder():
+    global output_directory
+
+    root = tk.Tk()
+    root.attributes('-topmost',True)
+    root.withdraw()
+
+    output_directory = filedialog.askdirectory()
+
+    root.destroy()
 
 def tkwindowthread():
 
-    global window
+    global window, csv_files, status
 
     width = window.winfo_screenwidth() / 8
     height = window.winfo_screenheight() / 2
@@ -17,16 +49,60 @@ def tkwindowthread():
     window.rowconfigure([x for x in range(6)], weight=1, minsize=height/8)
     window.columnconfigure([x for x in range(2)], weight=1, minsize=width/2)
 
+    button_labels = ["Student Preferences", "Student Grades", "Available Seminars"]
+
+    for i in range(3):
+        frame = tk.Frame(
+            master=window,
+            relief=tk.RAISED,
+            borderwidth=1
+        )
+        frame.grid(row=i, column=0)
+        button = tk.Button(master = frame, text="Select "+button_labels[i], command=get_file_name)
+        button.pack()
+
+        frame = tk.Frame(
+            master=window,
+            borderwidth=1
+        )
+        frame.grid(row=i, column=1)
+        label = tk.Label(master=frame, textvariable=csv_files[i])
+        label.pack()
+    
     frame = tk.Frame(
         master=window,
         relief=tk.RAISED,
         borderwidth=1
     )
-    frame.grid(row=i, column=j)
-    label = tk.Label(master=frame, text=f"Row {i}\nColumn {j}")
+    frame.grid(row=3, column=0)
+    button = tk.Button(master = frame, text="Select Output Folder", command=get_output_folder)
+    button.pack()
+
+    frame = tk.Frame(
+        master=window,
+        borderwidth=1
+    )
+    frame.grid(row=3, column=1)
+    label = tk.Button(master = frame, textvariable=output_directory)
     label.pack()
 
-    
+    frame = tk.Frame(
+        master=window,
+        relief=tk.RAISED,
+        borderwidth=1
+    )
+    frame.grid(row=4)
+    button = tk.Button(master = frame, text="Create Schedules", command=csv_processing)
+    button.pack()
+    frame = tk.Frame(
+        master=window,
+        borderwidth=1
+    )
+    frame.grid(row=4)
+    label = tk.Label(master=frame, textvariable=status)
+    label.pack()
+
+
 
     #wip
     print("wip")
@@ -50,27 +126,16 @@ master_list = []
 
 def csv_processing():
 
-    root = tk.Tk()
-    root.attributes('-topmost',True)
-    root.withdraw()
-
-    global num_period, preferences_csv, preferences_reader, studenttograde, classes_reader, classes, class_capacities, emails, master_list, schedules
-
-    input("Press any button to select the file with the student preferences for each seminar")
+    global num_period, preferences_csv, preferences_reader, studenttograde, classes_reader, classes, class_capacities, emails, master_list, schedules, csv_files
     
-    preferences_csv = open(filedialog.askopenfilename())
-    #preferences_reader = csv.reader(preferences_csv)
+    preferences_csv = open(csv_files[0].get())
     
     preferences_reader = csv.reader(preferences_csv)
-    root.destroy()
 
-    input("Press any button to select the file with student grade info.")
-    studenttograde_csv = open(filedialog.askopenfilename())
+    studenttograde_csv = open(csv_files[1].get())
     studenttograde_reader = csv.reader(studenttograde_csv)
 
     for student in studenttograde_reader:
-        #print(student)
-        #print(student[0],student[1])
         studenttograde[student[0]] = student[1]
         emails += [student[0]]
 
@@ -78,9 +143,7 @@ def csv_processing():
     for i in range(num_period):
         schedules += [[0] * len(emails)]
 
-    input("Press any button to select the file with all the avaliable seminars and their capacities.")
-
-    classes_csv = open(filedialog.askopenfilename())
+    classes_csv = open(csv_files[2].get())
     classes_reader = csv.reader(classes_csv)
 
     for aclass in classes_reader:
@@ -94,14 +157,7 @@ def csv_processing():
             ohio += [ [] ]
         master_list += [ohio]
 
-    
-
-    
-
-    #input("Press any button to select the file with the rooms that classes will be in.")
-
-    #roomclass_csv = filedialog.askopenfilename() # might be hardcoded or already provided
-    #roomclass_reader = csv.reader(preferences_csv)
+    main()
 
 def main(period):
 
@@ -241,18 +297,9 @@ def main(period):
         print("There was an issue with the min cost flow input.")
         print(f"Status: {status}")
 
+def output():
 
-if __name__ == "__main__":
-
-    tkwindowthread()
-
-    csv_processing()
-
-    for period in range(num_period):
-        main(period)
-        print("Yup")
-
-    location = filedialog.askdirectory()
+    location = output_directory.get()
 
     for i in range(len(emails)):
         fin = []
@@ -268,3 +315,19 @@ if __name__ == "__main__":
     for i in range(len(classes)):
         for j in range(4):
             print(classes[i], "Period " + str(j), master_list[i][j])
+
+if __name__ == "__main__":
+
+    tkwindowthread()
+
+    print(csv_files)
+
+    csv_processing()
+
+    for period in range(num_period):
+        main(period)
+        print("Yup")
+
+    location = filedialog.askdirectory()
+
+    
