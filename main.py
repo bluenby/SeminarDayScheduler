@@ -350,7 +350,7 @@ def output():
     for i in range(len(emails)):
         fin = []
         for j in range(num_period):
-            fin += [str(classes[schedules[j][i]])]
+            fin += [str(schedules[j][i])]
         print(emails[i], fin)
 
         status.log("Creating schedule for student " + str(i))
