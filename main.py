@@ -3,7 +3,7 @@ from ortools.graph.python import min_cost_flow
 import csv
 import tkinter as tk
 from tkinter import filedialog
-import threading
+import threading    
 
 window = tk.Tk()
 
@@ -12,6 +12,40 @@ output_directory = tk.StringVar()
 status = tk.StringVar()
 
 csv_files = [tk.StringVar() for _ in range(3)]
+
+preferences_reader = 0
+preferences_csv = 0
+
+studenttograde = {}
+
+emails = []
+schedules = []
+
+classes_reader = 0
+num_period = 4
+
+classes = []
+class_capacities = [[] for _ in range(num_period)]
+master_list = []
+
+def reset():
+
+    global preferences_csv, preferences_reader, studenttograde, emails, schedules, classes_reader, num_period, classes, class_capacities, master_list
+
+    preferences_reader = 0
+    preferences_csv = 0
+
+    studenttograde = {}
+
+    emails = []
+    schedules = []
+
+    classes_reader = 0
+    num_period = 4
+
+    classes = []
+    class_capacities = [[] for _ in range(num_period)]
+    master_list = []
 
 def get_file_name():
 
@@ -35,7 +69,7 @@ def get_output_folder():
     root.attributes('-topmost',True)
     root.withdraw()
 
-    output_directory = filedialog.askdirectory()
+    output_directory.set(filedialog.askdirectory())
 
     root.destroy()
 
@@ -83,7 +117,7 @@ def tkwindowthread():
         borderwidth=1
     )
     frame.grid(row=3, column=1)
-    label = tk.Button(master = frame, textvariable=output_directory)
+    label = tk.Label(master = frame, textvariable=output_directory)
     label.pack()
 
     frame = tk.Frame(
@@ -91,14 +125,16 @@ def tkwindowthread():
         relief=tk.RAISED,
         borderwidth=1
     )
-    frame.grid(row=4)
+    frame.grid(row=4, column=0)
     button = tk.Button(master = frame, text="Create Schedules", command=csv_processing)
     button.pack()
+
+
     frame = tk.Frame(
         master=window,
         borderwidth=1
     )
-    frame.grid(row=4)
+    frame.grid(row=4, column=1)
     label = tk.Label(master=frame, textvariable=status)
     label.pack()
 
@@ -109,22 +145,9 @@ def tkwindowthread():
 
     window.mainloop()
 
-preferences_reader = 0
-preferences_csv = 0
-
-studenttograde = {}
-
-emails = []
-schedules = []
-
-classes_reader = 0
-num_period = 4
-
-classes = []
-class_capacities = [[] for _ in range(num_period)]
-master_list = []
-
 def csv_processing():
+
+    reset()
 
     global num_period, preferences_csv, preferences_reader, studenttograde, classes_reader, classes, class_capacities, emails, master_list, schedules, csv_files
     
@@ -157,7 +180,14 @@ def csv_processing():
             ohio += [ [] ]
         master_list += [ohio]
 
-    main()
+    for period in range(num_period):
+        main(period)
+        status.set(f"Period {period} scheduled")
+
+    status.set("Min Cost Flow solved, outputting...")
+    output()
+
+    
 
 def main(period):
 
@@ -299,6 +329,8 @@ def main(period):
 
 def output():
 
+    global emails, num_period, schedules, classes, master_list
+
     location = output_directory.get()
 
     for i in range(len(emails)):
@@ -307,27 +339,23 @@ def output():
             fin += [str(schedules[j][i])]
         print(emails[i], fin)
 
-        f = open(location + "Student" + str(i) + ".csv","x")
+        status.set("Creating schedule for student " + str(i))
+
+        f = open(location + "\\Student" + str(i) + ".csv","w")
         f.write(",".join(fin))
         f.close()
+
+    status.set("Schedules complete")
     
     # master_list: it works like, master_list[class][period]
     for i in range(len(classes)):
         for j in range(4):
             print(classes[i], "Period " + str(j), master_list[i][j])
 
+    status.set("Master List complete")
+
 if __name__ == "__main__":
 
     tkwindowthread()
-
-    print(csv_files)
-
-    csv_processing()
-
-    for period in range(num_period):
-        main(period)
-        print("Yup")
-
-    location = filedialog.askdirectory()
 
     
