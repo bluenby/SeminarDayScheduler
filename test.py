@@ -1,31 +1,17 @@
 import tkinter as tk
 from tkinter import filedialog
 import csv
+from random import randint
 
-root = tk.Tk()
-root.withdraw()
+file = open("grades.csv", 'w')
 
-file_path = filedialog.askopenfilename()
+writer = csv.writer(file)
 
-thing = ["", "", ""]
+rows = [[] for _ in range(80)]
+for num in range(80):
+    rows[num] = [f"person{num+1}@gmail.com", randint(9, 12)]
 
-def set_string_of_array(index, array):
-    array[index] = "hello"
-
-set_string_of_array(2, thing)
-
-print(thing)
-reader = csv.reader(file)
-
-d = {}
-
-for line in reader:
-    d[line[0]] = line[1]
-
-for line in reader:
-    print(line)
-
-print(d)
+writer.writerows(rows)
 
 file.close()
 

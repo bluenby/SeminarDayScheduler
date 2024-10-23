@@ -9,8 +9,6 @@ window = tk.Tk()
 
 output_directory = tk.StringVar()
 
-status = tk.StringVar()
-
 csv_files = [tk.StringVar() for _ in range(3)]
 
 preferences_reader = 0
@@ -27,6 +25,22 @@ num_period = 4
 classes = []
 class_capacities = [[] for _ in range(num_period)]
 master_list = []
+
+class Status():
+
+    def __init__(this, stringvar: tk.StringVar, window: tk.Tk):
+        this.stringvar = stringvar
+        this.window = window
+
+    def log(this, string):
+        this.stringvar.set(string)
+        this.window.update()
+        this.window.update_idletasks()
+
+    def get(this):
+        return this.stringvar.get()
+
+status = Status(tk.StringVar(), window)
 
 def reset():
 
@@ -135,7 +149,7 @@ def tkwindowthread():
         borderwidth=1
     )
     frame.grid(row=4, column=1)
-    label = tk.Label(master=frame, textvariable=status)
+    label = tk.Label(master=frame, textvariable=status.stringvar)
     label.pack()
 
 
@@ -182,9 +196,9 @@ def csv_processing():
 
     for period in range(num_period):
         main(period)
-        status.set(f"Period {period} scheduled")
+        status.log(f"Period {period} scheduled")
 
-    status.set("Min Cost Flow solved, outputting...")
+    status.log("Min Cost Flow solved, outputting...")
     output()
 
     
@@ -339,20 +353,20 @@ def output():
             fin += [str(schedules[j][i])]
         print(emails[i], fin)
 
-        status.set("Creating schedule for student " + str(i))
+        status.log("Creating schedule for student " + str(i))
 
         f = open(location + "\\Student" + str(i) + ".csv","w")
         f.write(",".join(fin))
         f.close()
 
-    status.set("Schedules complete")
+    status.log("Schedules complete")
     
     # master_list: it works like, master_list[class][period]
     for i in range(len(classes)):
         for j in range(4):
             print(classes[i], "Period " + str(j), master_list[i][j])
 
-    status.set("Master List complete")
+    status.log("Master List complete")
 
 if __name__ == "__main__":
 
