@@ -3,13 +3,14 @@ from ortools.graph.python import min_cost_flow
 import csv
 import tkinter as tk
 from tkinter import filedialog
-import threading    
+from functools import partial 
+import os
 
 window = tk.Tk()
 
 output_directory = tk.StringVar()
 
-csv_files = [tk.StringVar() for _ in range(3)]
+csv_files = [[tk.StringVar(), False] for _ in range(3)]
 
 preferences_reader = 0
 preferences_csv = 0
@@ -61,7 +62,7 @@ def reset():
     class_capacities = [[] for _ in range(num_period)]
     master_list = []
 
-def get_file_name():
+def get_file_name(index):
 
     global csv_files
 
@@ -69,12 +70,19 @@ def get_file_name():
     root.attributes('-topmost',True)
     root.withdraw()
 
-    for var in csv_files:
-        if var.get() == "":
-            var.set(filedialog.askopenfilename())
-            break
+    var = csv_files[index]
+    
+    file_path = filedialog.askopenfilename()
+    if file_path[-4:] != ".csv":
+        var[0].set("Please select a .csv file")
+        var[1] = False
+        return
+    
+    var[0].set(file_path)
+    var[1] = True
 
     root.destroy()
+    return
 
 def get_output_folder():
     global output_directory
@@ -106,7 +114,7 @@ def tkwindowthread():
             borderwidth=1
         )
         frame.grid(row=i, column=0)
-        button = tk.Button(master = frame, text="Select "+button_labels[i], command=get_file_name)
+        button = tk.Button(master = frame, text="Select "+button_labels[i], command=partial(get_file_name, i))
         button.pack()
 
         frame = tk.Frame(
@@ -114,7 +122,7 @@ def tkwindowthread():
             borderwidth=1
         )
         frame.grid(row=i, column=1)
-        label = tk.Label(master=frame, textvariable=csv_files[i])
+        label = tk.Label(master=frame, textvariable=csv_files[i][0])
         label.pack()
     
     frame = tk.Frame(
@@ -165,37 +173,75 @@ def csv_processing():
 
     global num_period, preferences_csv, preferences_reader, studenttograde, classes_reader, classes, class_capacities, emails, master_list, schedules, csv_files
     
-    preferences_csv = open(csv_files[0].get())
-    
-    preferences_reader = csv.reader(preferences_csv)
+    for i in range(3):
+        try:
+            assert csv_files[i][1]
+        except AssertionError:
+            status.log()
 
-    studenttograde_csv = open(csv_files[1].get())
-    studenttograde_reader = csv.reader(studenttograde_csv)
+    try:
+        preferences_csv = open(csv_files[0][0].get())
+        
+        preferences_reader = csv.reader(preferences_csv)
 
-    for student in studenttograde_reader:
-        studenttograde[student[0]] = student[1]
-        emails += [student[0]]
+        studenttograde_csv = open(csv_files[1][0].get())
+        studenttograde_reader = csv.reader(studenttograde_csv)
 
-    schedules = []
-    for i in range(num_period):
-        schedules += [[0] * len(emails)]
+        num_students = sum(1 for line in preferences_reader)
+        for line in studenttograde_reader:
+            num_students -= 1
 
-    classes_csv = open(csv_files[2].get())
-    classes_reader = csv.reader(classes_csv)
+        preferences_csv.seek(0)
+        studenttograde_csv.seek(0)
 
-    for aclass in classes_reader:
-        classes += [aclass[0]]
-        for x, capacity in enumerate(aclass[1:]):
-            class_capacities[x] += [int(capacity)]
-    master_list = []
-    for i in range(len(classes)):
-        ohio = []
-        for j in range(num_period):
-            ohio += [ [] ]
-        master_list += [ohio]
+        try:
+            assert (num_students == 0)
+        except AssertionError:
+            raise AssertionError("Student preferences list does not have the same amount of students as the student to grade list")
+
+        for student in studenttograde_reader:
+            studenttograde[student[0]] = student[1]
+            emails += [student[0]]
+
+        schedules = []
+        for i in range(num_period):
+            schedules += [[0] * len(emails)]
+
+        classes_csv = open(csv_files[2][0].get())
+        classes_reader = csv.reader(classes_csv)
+
+        period_capacities = [0, 0, 0, 0]
+
+        for aclass in classes_reader:
+            classes += [aclass[0]]
+            for x, capacity in enumerate(aclass[1:]):
+                class_capacities[x] += [int(capacity)]
+                period_capacities[x] += int(capacity)
+
+        for period in range(4):
+            try:
+                assert (period_capacities[period] >= num_students)
+            except AssertionError:
+                raise AssertionError(f"Not enough slots for students in period {period}")
+        master_list = []
+        for i in range(len(classes)):
+            ohio = []
+            for j in range(num_period):
+                ohio += [ [] ]
+            master_list += [ohio]
+    except AssertionError as a:
+        status.log(a.args[0])
+        return
+    except Exception as e:
+        status.log("CSV Preprocessing failed: " + e)
+        return
 
     for period in range(num_period):
-        main(period)
+        try:
+            main(period)
+        except Exception as e:
+            status.log(f"ERROR SCHEUDLING PERIOD {period}\n {e}")
+            return
         status.log(f"Period {period} scheduled")
 
     status.log("Min Cost Flow solved, outputting...")
@@ -353,9 +399,17 @@ def output():
             fin += [str(classes[schedules[j][i]])]
         print(emails[i], fin)
 
+        try:
+            os.mkdir(location + "\\Students")
+        except FileExistsError:
+            pass
+        except PermissionError:
+            status.log("Could not create output folders")
+            return
+
         status.log("Creating schedule for student " + str(i))
 
-        f = open(location + "\\Student" + str(i) + ".csv","w")
+        f = open(f"{location}\\Students\\Student{i+1}.csv","w")
         f.write(",".join(fin))
         f.close()
 
@@ -366,7 +420,21 @@ def output():
         for j in range(4):
             print(classes[i], "Period " + str(j), master_list[i][j])
 
-    status.log("Master List complete")
+            try:
+                os.mkdir(location + "\\SeminarAttendances")
+            except FileExistsError:
+                pass
+            except PermissionError:
+                status.log("Could not create output folders")
+                return
+            
+            status.log(f"Creating attendance for class {classes[i]} period {j+1}")
+ 
+            f = open(f"{location}\\SeminarAttendances\\{classes[i]}Period{j+1}.csv", "w")
+            f.write("\n".join(master_list[i][j]))
+            f.close()
+
+    status.log("Master Lists complete")
 
 if __name__ == "__main__":
 
