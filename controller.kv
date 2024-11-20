@@ -1,0 +1,54 @@
+#:kivy 1.0.5
+
+<FileSelector>
+    cols: 2
+    spacing: 40
+    file_name: str(root.file_id)
+    Button:
+        id: but
+        padding: 20
+        text: "IM A BUTTON"
+        on_release: root.file_id += 1
+
+    Label:
+        id: lab
+        padding: 20
+        text: root.file_name
+
+<OutputRow>
+    cols: 2
+    row: 1
+
+    statusLabel: statusLabel
+    outputButton: outputButton
+
+    Button:
+        id: outputButton
+        text: "Print the label"
+        on_release: root.run()
+
+    Label:
+        id: statusLabel
+        text: root.status
+
+<MyWidget>
+    orientation: "vertical"
+    prefs: prefs.file_name
+    grades: grades.file_name
+    classes: classes.file_name
+    output: output.file_name
+    FileSelector:
+        id: prefs
+        file_id: 0
+    FileSelector:
+        id: grades
+        file_id: 1
+    FileSelector:
+        id: classes
+        file_id: 2
+    FileSelector:
+        id: output
+        file_id: 3
+    OutputRow:
+        status: "none"
+            

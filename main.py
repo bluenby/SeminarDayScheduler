@@ -4,18 +4,23 @@ import csv
 import tkinter as tk
 from tkinter import filedialog
 from functools import partial 
+import random
 import os
 
-# TODO: Implement lunches, remove duplicate prefrences/assign randomly, output to pdf, make the gui nicer (kivy or wxpython or qt]), handle students not responding
+# TODO: output to pdf, make the gui nicer (kivy or wxpython or qt)
 
 # for lunches:
-# create a class node period 4 and 5 that takes (half?) of the students with weight 0 going to it, any students who choose or are selected for lunch
+# create a class node period 3 and 4 that takes (half?) of the students with weight 0 going to it, any students who choose or are selected for lunch
 # will only have an edge to lunch at cost 0. essentially overwrite their choices
 
-# duplicate preferences can be done during preproccesing
+# lunches are done, freshman and sophomores are put into first lunch, juniors and seniors into second lunch. Preferences are overwritten.
+# alternative, create a preference to first or second lunch, could be formatted with help from google forms
+
+# duplicate preferences can be done during preproccesing >>> done
+# duplicate students has also been handled (incase that happens somehow)
 
 # students not responding can be dealt with in pre or post processing
-# pre-processing would be adding missing students with random preferences
+# pre-processing would be adding missing students with random preferences  >>> done, missing students also have the least weight
 # post-processing would be adding missing students into any avaliable seminars
 
 window = tk.Tk()
@@ -87,7 +92,7 @@ def get_file_name(index):
 
     var = csv_files[index]
     
-    file_path = filedialog.askopenfilename(filetypes=[".csv"])
+    file_path = filedialog.askopenfilename(filetypes=[("Comma Seperated Values",".csv")])
     if file_path[-4:] != ".csv":
         var[0].set("Please select a .csv file")
         var[1] = False
@@ -123,57 +128,76 @@ def tkwindowthread():
     button_labels = ["Student Preferences", "Student Grades", "Available Seminars"]
 
     for i in range(3):
-        frame = tk.Frame(
-            master=window,
-            relief=tk.RAISED,
-            borderwidth=1
-        )
-        frame.grid(row=i, column=0)
-        button = tk.Button(master = frame, text="Select "+button_labels[i], command=partial(get_file_name, i))
-        button.pack()
+        button = tk.Button(master = window, text="Select "+button_labels[i], command=partial(get_file_name, i))
+        button.grid(row=i, column=0)
 
-        frame = tk.Frame(
-            master=window,
-            borderwidth=1
-        )
-        frame.grid(row=i, column=1)
-        label = tk.Label(master=frame, textvariable=csv_files[i][0])
-        label.pack()
+        label = tk.Label(master=window, textvariable=csv_files[i][0])
+        label.grid(row=i, column=1)
     
-    frame = tk.Frame(
-        master=window,
-        relief=tk.RAISED,
-        borderwidth=1
-    )
-    frame.grid(row=3, column=0)
-    button = tk.Button(master = frame, text="Select Output Folder", command=get_output_folder)
-    button.pack()
+    button = tk.Button(master = window, text="Select Output Folder", command=get_output_folder)
+    button.grid(row=3, column=0)
 
-    frame = tk.Frame(
-        master=window,
-        borderwidth=1
-    )
-    frame.grid(row=3, column=1)
-    label = tk.Label(master = frame, textvariable=output_directory)
-    label.pack()
+    label = tk.Label(master = window, textvariable=output_directory)
+    label.grid(row=3, column=1)
 
-    frame = tk.Frame(
-        master=window,
-        relief=tk.RAISED,
-        borderwidth=1
-    )
-    frame.grid(row=4, column=0)
-    button = tk.Button(master = frame, text="Create Schedules", command=csv_processing)
-    button.pack()
+    button = tk.Button(master = window, text="Create Schedules", command=csv_processing)
+    button.grid(row=4, column=0)
+
+    label = tk.Label(master=window, textvariable=status.stringvar)
+    label.grid(row=4, column=1)
+
+    # for i in range(3):
+    #     frame = tk.Frame(
+    #         master=window,
+    #         relief=tk.RAISED,
+    #         borderwidth=1
+    #     )
+    #     frame.grid(row=i, column=0)
+    #     button = tk.Button(master = frame, text="Select "+button_labels[i], command=partial(get_file_name, i))
+    #     button.pack()
+
+    #     frame = tk.Frame(
+    #         master=window,
+    #         borderwidth=1
+    #     )
+    #     frame.grid(row=i, column=1)
+    #     label = tk.Label(master=frame, textvariable=csv_files[i][0])
+    #     label.pack()
+    
+    # frame = tk.Frame(
+    #     master=window,
+    #     relief=tk.RAISED,
+    #     borderwidth=1
+    # )
+    # frame.grid(row=3, column=0)
+    # button = tk.Button(master = frame, text="Select Output Folder", command=get_output_folder)
+    # button.pack()
+
+    # frame = tk.Frame(
+    #     master=window,
+    #     borderwidth=1
+    # )
+    # frame.grid(row=3, column=1)
+    # label = tk.Label(master = frame, textvariable=output_directory)
+    # label.pack()
+
+    # frame = tk.Frame(
+    #     master=window,
+    #     relief=tk.RAISED,
+    #     borderwidth=1
+    # )
+    # frame.grid(row=4, column=0)
+    # button = tk.Button(master = frame, text="Create Schedules", command=csv_processing)
+    # button.pack()
 
 
-    frame = tk.Frame(
-        master=window,
-        borderwidth=1
-    )
-    frame.grid(row=4, column=1)
-    label = tk.Label(master=frame, textvariable=status.stringvar)
-    label.pack()
+    # frame = tk.Frame(
+    #     master=window,
+    #     borderwidth=1
+    # )
+    # frame.grid(row=4, column=1)
+    # label = tk.Label(master=frame, textvariable=status.stringvar)
+    # label.pack()
 
 
 
@@ -209,21 +233,19 @@ def csv_processing():
         studenttograde_csv = open(csv_files[1][0].get())
         studenttograde_reader = csv.reader(studenttograde_csv)
 
-        num_students = sum(1 for line in preferences_reader)
-        for line in studenttograde_reader:
-            num_students -= 1
+        num_students = sum(1 for _ in preferences_reader)
 
         preferences_csv.seek(0)
-        studenttograde_csv.seek(0)
 
-        try:
-            assert (num_students == 0)
-        except AssertionError:
-            raise AssertionError("Student preferences list does not have the same amount of students as the student to grade list")
+        lunch_capacities = [0, 0]
 
         for student in studenttograde_reader:
             studenttograde[student[0]] = student[1]
             emails += [student[0]]
+            if int(student[1]) < 11:
+                lunch_capacities[0] += 1
+            else:
+                lunch_capacities[1] += 1
 
         schedules = []
         for i in range(num_period):
@@ -235,28 +257,60 @@ def csv_processing():
         period_capacities = [0, 0, 0, 0]
 
         for aclass in classes_reader:
+            print(aclass)
             classes += [aclass[0]]
             for x, capacity in enumerate(aclass[1:]):
                 class_capacities[x] += [int(capacity)]
                 period_capacities[x] += int(capacity)
 
+        # Remove all duplicate students TODO: fill missing students
+        flag = True
+        students = []
+        rows = []
+        missing_students = list(emails)
+        for student in preferences_reader:
+            name = student[1]
+            duplicate = False
+            for s in students:
+                if s == name:
+                    duplicate = True
+                    break
+            for x, s in enumerate(missing_students):
+                if s == name:
+                    missing_students.pop(x)
+            if not duplicate:
+                students += [name]
+                rows += [student]
+
+            if flag:
+                flag = False
+
+        for name in missing_students:
+            student = ["time", name] + [classes[random.randint(0, len(classes) - 3)] for _ in range(20)]
+
+            if studenttograde[name] > 10:
+                lunch_capacities[1] -= 1
+                lunch_capacities[0] += 1
+
+            studenttograde[name] = 0
+            rows += [student]
+        
+        write_prefs = open(csv_files[0][0].get(), "wt", newline='')
+        preferences_writer = csv.writer(write_prefs)
+        preferences_writer.writerows(rows)
+        write_prefs.close()
+
+        preferences_csv.seek(0)        
+
         lunches = [
-            ["First Lunch", 0, 0, 300, 0],
-            ["Second Lunch", 0, 0, 300, 0]
+            ["First Lunch", 0, 0, lunch_capacities[0], 0],
+            ["Second Lunch", 0, 0, 0, lunch_capacities[1]]
         ]
 
         for lunch in lunches:
-            classes += lunch[0]
+            classes += [lunch[0]]
             for x, capacity in enumerate(lunch[1:]):
-                class_capacities[x] += [capacity]
-
-        for student in preferences_csv:
-            for period in range(num_period):
-                prefs = []
-                for pref in range(5):
-                    id = classes.index(pref)
-                    try:
-                        prefs.index
+                class_capacities[x] += [int(capacity)]
 
         for period in range(4):
             try:
@@ -273,15 +327,14 @@ def csv_processing():
         status.log(a.args[0])
         return
     except Exception as e:
-        status.log("CSV Preprocessing failed: " + e)
-        return
+        raise e
 
     for period in range(num_period):
         try:
             main(period)
         except Exception as e:
             status.log(f"ERROR SCHEUDLING PERIOD {period}\n {e}")
-            return
+            raise e
         status.log(f"Period {period} scheduled")
 
     status.log("Min Cost Flow solved, outputting...")
@@ -340,7 +393,8 @@ def main(period):
             class_capacities[period][i + num_classes] = class_capacities[period][i]
             class_capacities[period][i] = 0
     
-    
+    flag = True
+
     preferences_csv.seek(0)
     preferences_reader = csv.reader(preferences_csv)
     for student in preferences_reader:
@@ -350,6 +404,27 @@ def main(period):
         source_end_nodes += [num_classes + student_index]
         source_costs += [0]
         senior_flag = (studenttograde[student[1]] == 12)
+        missing_flag = (studenttograde[student[1]] == 0)
+
+        temp = list(classes)
+        replace = []
+        for pref in range(5):
+            try:
+                temp.remove(student[2 + pref + period * 5])
+            except ValueError:
+                replace += [pref]
+                
+        if len(replace) > 0:
+            for a in replace:
+                randomval = random.randint(0, len(temp) - 1)
+                student[2 + a + period * 5] = temp[randomval]
+
+        if period == 2 and int(studenttograde[student[1]]) < 11:
+            for pref in range(5):
+                student[2 + pref + 2 * 5] = "First Lunch"
+        elif period == 3 and int(studenttograde[student[1]]) > 10:
+            for pref in range(5):
+                student[2 + pref + 3 * 5] = "Second Lunch"
 
         for j in range(5):
             # find ID of class that student wants
@@ -364,7 +439,12 @@ def main(period):
             weight = 10000 - student_index
             if senior_flag:
                 weight *= 10
+            elif missing_flag:
+                weight = int(weight/10)
             student_costs += [weight * j]
+
+        if flag and period == 2:
+            continue
 
         
     # 0, number of classes, number of students, THEN the sink
@@ -374,8 +454,6 @@ def main(period):
 
     source_capacities = [1] * len(source_start_nodes)
     student_capacities = [1] * len(student_start_nodes)
-
-    
 
 
     start_nodes = (
@@ -391,6 +469,9 @@ def main(period):
         source_costs + student_costs + class_costs
     )
     print("PHASE 1")
+    print(len(source_start_nodes), len(student_start_nodes), len(class_start_nodes), len(start_nodes))
+    print(len(source_end_nodes), len(student_end_nodes), len(class_end_nodes), len(end_nodes))
+    print(len(source_capacities), len(student_capacities), len(class_capacities[period]), len(capacities))
             
 
     source = 0
@@ -462,6 +543,8 @@ def output():
     for i in range(len(classes)):
         for j in range(4):
             print(classes[i], "Period " + str(j), master_list[i][j])
+            if len(master_list[i][j]) == 0:
+                continue
 
             try:
                 os.mkdir(location + "\\SeminarAttendances")
@@ -483,4 +566,4 @@ if __name__ == "__main__":
 
     tkwindowthread()
 
-    
+    # emerson hirsch, daniel spilman, karn chutinan, serena baranello, selin gulden, amethyst xue, iris chen, 
