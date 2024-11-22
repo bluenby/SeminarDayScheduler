@@ -1,0 +1,26 @@
+body {
+    font-family: Helvetica, sans-serif;
+}
+
+input[type='file'] {
+    display: none;
+}
+
+.upload-container {
+    text-align: center;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    border: 2px dashed #ccc;
+    padding: 20px;
+    transition: all 0.1s ease-out;
+}
+
+.upload-container:hover {
+    background-color: #e1f7d5;
+    border-color: #7dbf00;
+}
+
+.upload-container.dragover {
+    background-color: #e1f7d5;
+    border-color: #7dbf00;
+}
