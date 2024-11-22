@@ -2,6 +2,8 @@ function dragAttemptOver1File() {
     alert("Please only upload 1 CSV file per section.");
 }
 
+
+
 //
 //Grades
 //
@@ -147,4 +149,53 @@ seminarsFileInput.addEventListener('change', (e) => {
     //Update file label
     //TO-DO: Make request to server for the directory of the file
     seminarsLabel.innerText = e.target.files[0].name;
+});
+
+//
+// Output Dir
+//
+
+const outputDirUploadContainer = document.getElementById('output-dir-upload-container');
+const outputDirFileInput = document.getElementById('output-dir');
+const outputDirLabel = document.getElementById('output-dir-label');
+
+outputDirUploadContainer.addEventListener('click', () => {
+    outputDirFileInput.click();
+});
+
+//User dragged and dropped a file
+outputDirUploadContainer.addEventListener('drop', (e) => {
+  e.preventDefault();
+  
+  const files = e.dataTransfer.files;
+
+  if(files.length > 1) {
+    dragAttemptOver1File();
+    return;
+  }
+
+  //Add file to <input> element
+  outputDirFileInput.files = files;
+  //Update file label
+  //TO-DO: Make request to server for the directory of the file
+  outputDirLabel.innerText = files[0].name;
+  outputDirUploadContainer.classList.remove('dragover');
+});
+
+//Visual
+outputDirUploadContainer.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    outputDirUploadContainer.classList.add('dragover');
+});
+
+//Visual
+outputDirUploadContainer.addEventListener('dragleave', () => {
+    outputDirUploadContainer.classList.remove('dragover');
+});
+
+//Fires when the user clicks to select a file
+outputDirFileInput.addEventListener('change', (e) => {
+    //Update file label
+    //TO-DO: Make request to server for the directory of the file
+    outputDirLabel.innerText = e.target.files[0].name;
 });

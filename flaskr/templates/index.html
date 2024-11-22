@@ -44,11 +44,18 @@
             <p id="seminars-label">No file selected</p>
         </div>
 
-        <h2>Select Output Directory</h2>
+        <h2>Select Output Folder</h2>
 
         <div>
-            <h3>Output Directory</h3>
+            <h3>Output Folder</h3>
             <input type="file" name="file" id="output-dir" webkitdirectory directory required>
+
+            <div class="upload-container" id="output-dir-upload-container">
+                <span>Drag and drop or click to select an output folder</span>
+                <input type="file" name="file" id="output-dir" required>
+            </div>
+            
+            <p id="output-dir-label">No folder selected</p>
         </div>
 
         <button type="submit">Upload</button>
