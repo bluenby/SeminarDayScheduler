@@ -1,11 +1,10 @@
 """Linear assignment example."""
 from ortools.graph.python import min_cost_flow
-import csv
-from functools import partial 
+import csv 
 import random
 import os
 
-# TODO: output to pdf, make the gui nicer (kivy or wxpython or qt)
+# TODO: output to pdf
 
 # for lunches:
 # create a class node period 3 and 4 that takes (half?) of the students with weight 0 going to it, any students who choose or are selected for lunch
