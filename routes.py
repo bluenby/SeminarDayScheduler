@@ -1,7 +1,9 @@
+"""Routes for the Flask app"""
+import main
 import tkinter as tk
 from tkinter import filedialog
-from flask import Blueprint, request, jsonify, render_template
-import main
+from flask import Blueprint, request, jsonify, render_template, Response
+from monitor_heartbeat import check_in
 
 routes = Blueprint('routes', __name__)
 
@@ -25,6 +27,15 @@ def create_schedules():
 @routes.route('/get-status', methods=['POST'])
 def poll_status():
     return jsonify(main.status.currentLog)
+
+@routes.route('/heartbeat-check-in', methods=['POST'])
+def heartbeat_check_in():
+    check_in()
+    return Response(status=200)
+
+#
+# FILE SELECTION
+#
 
 @routes.route('/select-file', methods=['POST'])
 def select_file():

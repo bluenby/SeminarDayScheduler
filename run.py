@@ -1,9 +1,12 @@
+"""Starts the Flask app. Is run by the exe"""
 #import os
 #import sys
 import webbrowser
+import threading
 from threading import Timer
 from flask import Flask
 from routes import routes
+from monitor_heartbeat import monitor_heartbeat
 
 #Fix for pyinstaller compatibility with Flask
 #if getattr(sys, 'frozen', False):
@@ -21,4 +24,5 @@ def open_browser():
 
 if __name__ == "__main__":
     Timer(0.5, open_browser).start()
+    threading.Thread(target=monitor_heartbeat, daemon=True).start()
     app.run()
