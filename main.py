@@ -1,13 +1,10 @@
 """Linear assignment example."""
 from ortools.graph.python import min_cost_flow
-import csv
-import tkinter as tk    
-from tkinter import filedialog
-from functools import partial 
+import csv 
 import random
 import os
 
-# TODO: output to pdf, make the gui nicer (kivy or wxpython or qt)
+# TODO: output to pdf
 
 # for lunches:
 # create a class node period 3 and 4 that takes (half?) of the students with weight 0 going to it, any students who choose or are selected for lunch
@@ -23,12 +20,9 @@ import os
 # pre-processing would be adding missing students with random preferences  >>> done, missing students also have the least weight
 # post-processing would be adding missing students into any avaliable seminars
 
-window = tk.Tk()
+output_directory = ''
 
-output_directory = tk.StringVar()
-output_directory.set(os.getcwd() + "\\Seminar Day Schedules")
-
-csv_files = [[tk.StringVar(), False] for _ in range(3)]
+csv_file_paths = {}
 
 preferences_reader = 0
 preferences_csv = 0
@@ -48,23 +42,36 @@ class_capacities = [[] for _ in range(num_period)]
 master_list = []
 
 class Status():
+    #Web interface displays whatever this variable is set to
+    currentLog = 'Starting...'
 
-    def __init__(this, stringvar: tk.StringVar, window: tk.Tk):
-        this.stringvar = stringvar
-        this.window = window
+    #def __init__(this, stringvar: tk.StringVar, window: tk.Tk):
+        #this.stringvar = stringvar
+        #this.window = window
 
     def log(this, string):
-        this.stringvar.set(string)
-        this.window.update()
-        this.window.update_idletasks()
+        #this.stringvar.set(string)
+        #this.window.update()
+        #this.window.update_idletasks()
+        this.currentLog = string
+        print(string)
 
-    def get(this):
-        return this.stringvar.get()
+    #def get(this):
+        #return this.stringvar.get()
 
-status = Status(tk.StringVar(), window)
+status = Status()
+
+#Called by the web interface
+def init(uploaded_csv_file_paths, uploaded_output_dir):
+    global csv_file_paths, output_directory
+
+    reset()
+    csv_file_paths = uploaded_csv_file_paths
+    output_directory = uploaded_output_dir
+
+    csv_processing()
 
 def reset():
-
     global preferences_csv, preferences_reader, studenttograde, emails, schedules, classes_reader, num_period, classes, class_capacities, master_list
 
     preferences_reader = 0
@@ -82,157 +89,29 @@ def reset():
     class_capacities = [[] for _ in range(num_period)]
     master_list = []
 
-def get_file_name(index):
-
-    global csv_files
-
-    root = tk.Tk()
-    root.attributes('-topmost',True)
-    root.withdraw()
-
-    var = csv_files[index]
-    
-    file_path = filedialog.askopenfilename(filetypes=[("Comma Seperated Values",".csv")])
-    if file_path[-4:] != ".csv":
-        var[0].set("Please select a .csv file")
-        var[1] = False
-        return
-    
-    var[0].set(file_path)
-    var[1] = True
-
-    root.destroy()
-    return
-
-def get_output_folder():
-    global output_directory
-
-    root = tk.Tk()
-    root.attributes('-topmost',True)
-    root.withdraw()
-
-    output_directory.set(filedialog.askdirectory())
-
-    root.destroy()
-
-def tkwindowthread():
-
-    global window, csv_files, status
-
-    width = window.winfo_screenwidth() / 8
-    height = window.winfo_screenheight() / 2
-    
-    window.rowconfigure([x for x in range(6)], weight=1, minsize=height/8)
-    window.columnconfigure([x for x in range(2)], weight=1, minsize=width/2)
-
-    button_labels = ["Student Preferences", "Student Grades", "Available Seminars"]
-
-    for i in range(3):
-        button = tk.Button(master = window, text="Select "+button_labels[i], command=partial(get_file_name, i))
-        button.grid(row=i, column=0)
-
-        label = tk.Label(master=window, textvariable=csv_files[i][0], )
-        label.grid(row=i, column=1)
-    
-    button = tk.Button(master = window, text="Select Output Folder", command=get_output_folder)
-    button.grid(row=3, column=0)
-
-    label = tk.Label(master = window, textvariable=output_directory)
-    label.grid(row=3, column=1)
-
-    button = tk.Button(master = window, text="Create Schedules", command=csv_processing)
-    button.grid(row=4, column=0)
-
-    label = tk.Label(master=window, textvariable=status.stringvar)
-    label.grid(row=4, column=1)
-
-    # for i in range(3):
-    #     frame = tk.Frame(
-    #         master=window,
-    #         relief=tk.RAISED,
-    #         borderwidth=1
-    #     )
-    #     frame.grid(row=i, column=0)
-    #     button = tk.Button(master = frame, text="Select "+button_labels[i], command=partial(get_file_name, i))
-    #     button.pack()
-
-    #     frame = tk.Frame(
-    #         master=window,
-    #         borderwidth=1
-    #     )
-    #     frame.grid(row=i, column=1)
-    #     label = tk.Label(master=frame, textvariable=csv_files[i][0])
-    #     label.pack()
-    
-    # frame = tk.Frame(
-    #     master=window,
-    #     relief=tk.RAISED,
-    #     borderwidth=1
-    # )
-    # frame.grid(row=3, column=0)
-    # button = tk.Button(master = frame, text="Select Output Folder", command=get_output_folder)
-    # button.pack()
-
-    # frame = tk.Frame(
-    #     master=window,
-    #     borderwidth=1
-    # )
-    # frame.grid(row=3, column=1)
-    # label = tk.Label(master = frame, textvariable=output_directory)
-    # label.pack()
-
-    # frame = tk.Frame(
-    #     master=window,
-    #     relief=tk.RAISED,
-    #     borderwidth=1
-    # )
-    # frame.grid(row=4, column=0)
-    # button = tk.Button(master = frame, text="Create Schedules", command=csv_processing)
-    # button.pack()
-
-
-    # frame = tk.Frame(
-    #     master=window,
-    #     borderwidth=1
-    # )
-    # frame.grid(row=4, column=1)
-    # label = tk.Label(master=frame, textvariable=status.stringvar)
-    # label.pack()
-
-
-
-    #wip
-    # print("wip")
-
-    window.mainloop()
-
 def csv_processing():
-
-    reset()
-
-    global num_period, preferences_csv, preferences_reader, studenttograde, classes_reader, classes, class_capacities, emails, master_list, schedules, csv_files
+    global num_period, preferences_csv, preferences_reader, studenttograde, classes_reader, classes, class_capacities, emails, master_list, schedules, csv_file_paths
 
     try:
-        os.mkdir(output_directory.get())
+        os.mkdir(output_directory)
     except FileExistsError:
         pass
     except PermissionError:
         status.log("Cannot create/open target directory")
         return
     
-    for i in range(3):
+    for path in csv_file_paths:
         try:
-            assert csv_files[i][1]
+            assert path
         except AssertionError:
             status.log()
 
-
     # break try catch statements
     try:
-        preferences_csv = open(csv_files[0][0].get())
+        preferences_csv = open(csv_file_paths['prefs'])
         preferences_reader = csv.reader(preferences_csv)
 
-        studenttograde_csv = open(csv_files[1][0].get())
+        studenttograde_csv = open(csv_file_paths['grades'])
         studenttograde_reader = csv.reader(studenttograde_csv)
 
         num_students = sum(1 for _ in preferences_reader)
@@ -253,7 +132,7 @@ def csv_processing():
         for i in range(num_period):
             schedules += [[0] * len(emails)]
 
-        classes_csv = open(csv_files[2][0].get())
+        classes_csv = open(csv_file_paths['seminars'])
         classes_reader = csv.reader(classes_csv)
 
         period_capacities = [0, 0, 0, 0]
@@ -264,6 +143,8 @@ def csv_processing():
             for x, capacity in enumerate(aclass[1:]):
                 class_capacities[x] += [int(capacity)]
                 period_capacities[x] += int(capacity)
+
+        
 
         # Remove all duplicate students TODO: fill missing students
         flag = True
@@ -297,12 +178,14 @@ def csv_processing():
             studenttograde[name] = 0
             rows += [student]
         
-        write_prefs = open(csv_files[0][0].get(), "wt", newline='')
+        write_prefs = open(csv_file_paths['prefs'], "wt", newline='')
         preferences_writer = csv.writer(write_prefs)
         preferences_writer.writerows(rows)
         write_prefs.close()
 
-        preferences_csv.seek(0)        
+        preferences_csv.seek(0)
+
+             
 
         lunches = [
             ["First Lunch", 0, 0, lunch_capacities[0], 0],
@@ -313,6 +196,8 @@ def csv_processing():
             classes += [lunch[0]]
             for x, capacity in enumerate(lunch[1:]):
                 class_capacities[x] += [int(capacity)]
+        
+        
 
         for period in range(4):
             try:
@@ -330,6 +215,8 @@ def csv_processing():
         return
     except Exception as e:
         raise e
+    
+    
 
     for period in range(num_period):
         try:
@@ -346,7 +233,7 @@ def csv_processing():
 
 def main(period):
 
-    global preferences_csv, preferences_reader, classes, class_capacities, studenttograde, emails, schedules
+    global preferences_csv, preferences_reader, classes, class_capacities, studenttograde, emails, schedules, status
 
     """Solving an Assignment Problem with MinCostFlow."""
     # Instantiate a SimpleMinCostFlow solver.
@@ -383,6 +270,7 @@ def main(period):
 
     min_per_class = 1
 
+    
     
     # the malicious
     class_capacities[period] += [min_per_class] * num_classes
@@ -448,7 +336,8 @@ def main(period):
         if flag and period == 2:
             continue
 
-        
+    
+
     # 0, number of classes, number of students, THEN the sink
     # 1 + num_classes + student_index
     # this should be the terminus
@@ -490,9 +379,11 @@ def main(period):
         smcf.set_node_supply(i, supplies[i])
 
     # Find the minimum cost flow between node 0 and node 10.
-    status = smcf.solve()
+    smcf_status = smcf.solve()
 
-    if status == smcf.OPTIMAL:
+    
+
+    if smcf_status == smcf.OPTIMAL:
         print("Total cost = ", smcf.optimal_cost())
         print()
         for arc in range(smcf.num_arcs()):
@@ -508,13 +399,13 @@ def main(period):
 
     else:
         print("There was an issue with the min cost flow input.")
-        print(f"Status: {status}")
+        print(f"Status: {smcf_status}")
 
 def output():
 
-    global emails, num_period, schedules, classes, master_list
+    global emails, num_period, schedules, classes, master_list, output_directory
 
-    location = output_directory.get()
+    location = output_directory
 
     for i in range(len(emails)):
 
@@ -540,6 +431,8 @@ def output():
         f.close()
 
     status.log("Schedules complete")
+
+    
     
     # master_list: it works like, master_list[class][period]
     for i in range(len(classes)):
@@ -562,10 +455,10 @@ def output():
             f.write("\n".join(master_list[i][j]))
             f.close()
 
+    
+
     status.log("Master Lists complete")
+    #Identified by web interface to tell if completed
+    status.log("Success")
 
-if __name__ == "__main__":
-
-    tkwindowthread()
-
-    # emerson hirsch, daniel spilman, karn chutinan, serena baranello, selin gulden, amethyst xue, iris chen, 
+    # emerson hirsch, daniel spilman, karn chutinan, serena baranello, selin gulden, amethyst xue, iris chen, ethan filip, 

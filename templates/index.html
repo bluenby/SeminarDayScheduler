@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seminar Day Scheduler</title>
+
+    <link rel="stylesheet" href="/static/index.css">
+</head>
+<body>
+    <div class="text-center">
+        <h1>Dover Sherborn High-School</h1>
+        <h1>Seminar Day Scheduler</h1>
+    </div>
+    
+    <div class="d-flex">
+        <div class="section text-center" style="width: 50%;">
+            <form action="javascript:attemptFormSubmission()" method="POST">
+                <h2>Upload CSV Files</h2>
+
+                <h3>Student Grades CSV</h2>
+                <input type="button" value="Select CSV File" class="upload-file-button" id="grades-upload-button">
+                <p id="grades-label">No file selected</p>
+            
+                <h3>Student Preferences CSV</h2>
+                <input type="button" value="Select CSV File" class="upload-file-button" id="prefs-upload-button">
+                <p id="prefs-label">No file selected</p>
+
+                <h3>Available Seminars CSV</h2>
+                <input type="button" value="Select CSV File" class="upload-file-button" id="seminars-upload-button">
+                <p id="seminars-label">No file selected</p>      
+
+                <h2>Select Output Folder</h2>
+                
+                <h3>Output Folder</h3>
+                <input type="button" value="Select Output Folder" class="upload-file-button" id="output-folder-upload-button">
+                <p id="output-folder-label">No folder selected</p>
+
+                <button type="submit" id="create-schedules-button">Create Schedules</button>
+            </form>
+        
+        </div>
+    
+        <div class="section text-center status-progress" style="width: 50%">
+            <h2>Status and Progress</h2>
+    
+            <div class='hide' id="progress-section-hidden-container">
+                <h3 class="progress-label">Progress:</h3>
+                <progress class="" max="100" value="0"></progress>
+                <p id="status">Waiting...</p>
+            </div>
+
+            <p id="not-running">Currently not running.</p>
+        </div>
+    </div>
+    
+    <script type="text/javascript" src="/static/main.js"></script>
+    <script type="text/javascript" src="/static/select-files-folders.js"></script>
+    <script type="text/javascript" src="/static/heartbeat.js"></script>
+</body>
+</html>
