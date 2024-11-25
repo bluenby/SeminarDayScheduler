@@ -1,7 +1,7 @@
 import os
 import csv
 
-dir = 'C:\\Users\\ethan\\Desktop\\Projects\\Other\\SeminarDayScheduler\\output\\Students'
+dir = os.path.join(os.path.dirname(__file__), 'output\\Students')
 target_person = 'person89'
 
 def get_student_schedule(student_name):
