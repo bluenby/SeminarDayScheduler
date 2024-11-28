@@ -6,8 +6,10 @@ const statusText = document.getElementById('status');
 const notRunningText = document.getElementById('not-running');
 const progressSectionHiddenContainer = document.getElementById('progress-section-hidden-container');
 
-var getStatusSetInterval;
+//Submit Button
+const submitBtn = document.getElementById('create-schedules-button')
 
+var getStatusSetInterval;
 
 //Set from select-files-folders.js
 var paths = {
@@ -19,14 +21,17 @@ var paths = {
 
 function reset(isForStart, error) {
     if(isForStart) {
-        getStatusSetInterval = setInterval(get_status, 200);
+        submitBtn.disabled = true;
+        getStatusSetInterval = setInterval(get_status, 500);
         progressSectionHiddenContainer.classList.remove('hide');
         notRunningText.classList.add('hide');
         return;
     }
+
     console.log('e')
     clearInterval(getStatusSetInterval);
     notRunningText.classList.remove('hide');
+    submitBtn.disabled = false;
 
     if(error) {
         statusText.innerText = 'Error!';

@@ -32,8 +32,12 @@ const gradesUploadButton = document.getElementById('grades-upload-button');
 const gradesLabel = document.getElementById('grades-label');
 
 gradesUploadButton.addEventListener('click', async () => {
-    paths['grades'] = await selectFileAndGetPath();
-    gradesLabel.innerText = paths['grades'];
+    path = await selectFileAndGetPath();
+
+    if(path) {
+        paths['grades'] = path;
+        gradesLabel.innerText = path;
+    }
 });
 
 //
@@ -44,8 +48,12 @@ const prefsUploadButton = document.getElementById('prefs-upload-button');
 const prefsLabel = document.getElementById('prefs-label');
 
 prefsUploadButton.addEventListener('click', async () => {
-    paths['prefs'] = await selectFileAndGetPath();
-    prefsLabel.innerText = paths['prefs'];
+    path = await selectFileAndGetPath();
+
+    if(path) {
+        paths['prefs'] = path;
+        prefsLabel.innerText = path;
+    }
 });
 
 //
@@ -56,8 +64,12 @@ const seminarsUploadButton = document.getElementById('seminars-upload-button');
 const seminarsLabel = document.getElementById('seminars-label');
 
 seminarsUploadButton.addEventListener('click', async () => {
-    paths['seminars'] = await selectFileAndGetPath();
-    seminarsLabel.innerText = paths['seminars'];
+    path = await selectFileAndGetPath();
+
+    if(path) {
+        paths['seminars'] = path;
+        seminarsLabel.innerText = path;
+    }
 });
 
 //
@@ -68,6 +80,10 @@ const outputFolderUploadButton = document.getElementById('output-folder-upload-b
 const outputFolderLabel = document.getElementById('output-folder-label');
 
 outputFolderUploadButton.addEventListener('click', async () => {
-    paths['outputFolder'] = await selectFolderAndGetPath();
-    outputFolderLabel.innerText = paths['outputFolder'];
+    path = await selectFolderAndGetPath();
+
+    if(path) {
+        paths['outputFolder'] = path;
+        outputFolderLabel.innerText = path;
+    }
 });
