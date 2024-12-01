@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seminar Day Scheduler</title>
 
-    <link rel="stylesheet" href="/static/index.css">
+    <title>Seminar Day Scheduler</title>
+    <link rel="icon" type="image/x-icon" href="/static/images/ds.png">
+
+    <link rel="stylesheet" href="/static/css/index.css">
 </head>
 <body>
-    <div class="text-center">
-        <h1>Dover Sherborn High-School</h1>
-        <h1>Seminar Day Scheduler</h1>
-    </div>
+    <header>
+        <img src="/static/images/ds.png" height="70px" width="auto">
+        <h1 id="title">Seminar Day Scheduler</h1>
+    </header>
     
-    <div class="d-flex">
-        <div class="section text-center" style="width: 50%;">
+    <div style="display: flex;">
+        <div class="section" style="width: 50%;">
             <form action="javascript:attemptFormSubmission()" method="POST">
                 <h2>Upload CSV Files</h2>
 
@@ -38,24 +40,34 @@
 
                 <button type="submit" id="create-schedules-button">Create Schedules</button>
             </form>
-        
+            
+            <div class="status-progress">
+                <h2>Status and Progress</h2>
+                <p id="status"></p>
+                <p id="is-running">Currently not running.</p>
+            </div>
         </div>
     
-        <div class="section text-center status-progress" style="width: 50%">
-            <h2>Status and Progress</h2>
-    
-            <div class='hide' id="progress-section-hidden-container">
-                <h3 class="progress-label">Progress:</h3>
-                <progress class="" max="100" value="0"></progress>
-                <p id="status">Waiting...</p>
-            </div>
+        <div class="section" style="width: 50%;">
+            <h2>View Schedules</h2>
+            <div id="search-bar">
+                <input type="text" id="search-input" placeholder="Enter student name...">
+                <button id="search-button">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
 
-            <p id="not-running">Currently not running.</p>
+              <div id="pdf-viewer">
+                <p>Placeholder for PDF viewer</p>
+              </div>
         </div>
     </div>
     
-    <script type="text/javascript" src="/static/main.js"></script>
-    <script type="text/javascript" src="/static/select-files-folders.js"></script>
-    <script type="text/javascript" src="/static/heartbeat.js"></script>
+    <script type="text/javascript" src="/static/js/main.js"></script>
+    <script type="text/javascript" src="/static/js/select-files-folders.js"></script>
+    <script type="text/javascript" src="/static/js/heartbeat.js"></script>
 </body>
 </html>
