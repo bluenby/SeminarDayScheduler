@@ -18,3 +18,5 @@ if __name__ == "__main__":
     Timer(1, open_browser).start()
     threading.Thread(target=monitor_heartbeat, daemon=True).start()
     app.run()
+
+#ethan filip

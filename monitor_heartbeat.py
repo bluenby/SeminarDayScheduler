@@ -27,3 +27,5 @@ def check_in():
 def terminate_app():
     if getattr(sys, 'frozen', False):
         os.kill(os.getpid(), signal.SIGTERM)
+
+#ethan filip
