@@ -1,0 +1,132 @@
+:root {
+    --white: #f9f9f9;
+    --gray: #ccc;
+}
+
+/*
+Tags
+*/
+
+body {
+    font-family: Verdana, sans-serif;
+    background-color: var(--white);
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+header {
+    display: flex;
+    box-sizing: border-box;
+    align-items: center;
+    padding: 10px;
+    background-color: #769ee9;
+    margin-bottom: 20px;
+}
+
+input[type='file'] {
+    display: none;
+}
+
+progress {
+    transition: all 0.5s ease;
+}
+
+/*
+IDs
+*/
+
+#create-schedules-button {
+    cursor: pointer;
+    border-radius: 10px;
+    padding: 5px;
+    width: 50%;
+    font-size: 30px;
+    background-color: var(--white);
+    transition: all 0.2s ease;
+    border: 3px solid #000;
+}
+
+#pdf-viewer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 8.5 / 11;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 600px;
+    background-color: var(--white);
+    margin-top: 20px;
+}
+
+#search-bar {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+
+#search-input {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border: none;
+    width: 55%;
+    padding: 5px 5px 5px 15px;
+    font-size: 1.7em;
+}
+
+#search-button {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border: none;
+    border-left: solid 3px #000;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+#search-button:hover {
+    filter: brightness(0.9);
+}
+
+#title {
+    margin-left: 10px;
+}
+
+/*
+Main Classes
+*/
+
+.section {
+    box-sizing: border-box;
+    justify-content: center;
+    background-color: #769ee9;
+    text-align: center;
+    padding: 10px;
+    border-radius: 1%;
+    margin-inline: 10px;
+}
+
+.upload-file-button {
+    cursor: pointer;
+    background-color: var(--white);
+    border: 2px dashed var(--gray);
+    padding: 20px;
+    transition: all 0.2s ease;
+    border-radius: 5px;
+}
+
+/*
+Misc
+*/
+
+.upload-file-button:hover, #create-schedules-button:hover {
+    background-color: #e1f7d5;
+    border-color: #7dbf00;
+}
+
+.hide {
+    display: none;
+}
+
+.progress-label {
+    margin-bottom: 0;
+}
