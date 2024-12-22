@@ -59,7 +59,8 @@ progress {
 }
 
 .section {
-    width: 1000px;
+    width: 100%;
+    max-width: 1000px;
     display: block;
     margin: 0 auto;
     box-sizing: border-box;
