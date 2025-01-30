@@ -1,5 +1,7 @@
 const form = document.getElementsByTagName('form')[0];
 
+const progressSectionHidden = document.getElementById("progress-section-hidden")
+
 //Status and Progress Section
 const statusText = document.getElementById('status');
 const isRunningText = document.getElementById('is-running');
@@ -7,7 +9,7 @@ const isRunningText = document.getElementById('is-running');
 //Submit Button
 const submitBtn = document.getElementById('create-schedules-button')
 
-var getStatusSetInterval;
+var getStatusInterval;
 
 //Set from select-files-folders.js
 var paths = {
@@ -17,25 +19,6 @@ var paths = {
     'outputFolder' : ''
 }
 
-function reset(isForStart, error) {
-    if(isForStart) {
-        submitBtn.disabled = true;
-        getStatusSetInterval = setInterval(get_status, 500);
-        statusText.innerText = 'Starting';
-        isRunningText.innerText = 'Running...'
-        return;
-    }
-
-    clearInterval(getStatusSetInterval);
-    submitBtn.disabled = false;
-
-    if(error) {
-        statusText.innerText = 'Error! Please make sure you selected the right CSV files.';
-    } else {
-        statusText.innerText = 'Done!';
-        isRunningText.innerText = 'Currently not running...'
-    }
-}
 
 function attemptFormSubmission() {
     for (let key in paths) {
@@ -49,12 +32,19 @@ function attemptFormSubmission() {
         }
     }
 
-    createSchedulesUntilEnd();
-    reset(true);
+    start();
 };
 
-//Sends a request to begin creating schedules and waits for when its done
-function createSchedulesUntilEnd() {
+function start() {
+    progressSectionHidden.classList.remove("hide");
+    submitBtn.disabled = true;
+    isRunningText.innerText = 'Processing...'
+
+    statusText.innerText = 'Starting';
+    statusText.classList.remove("success");
+    statusText.classList.remove("error");
+
+    //Send request to make schedules and reset once the process has finished
     fetch('/create-schedules', {
         method: 'POST',
         headers: {
@@ -64,11 +54,29 @@ function createSchedulesUntilEnd() {
     })
     .then(response => response.json())
     .then(data => {
-        reset(false, data=='error');
+        end_and_reset(data=='error');
     })
-    .catch(e => {
-        reset(false, true)
+    .catch((error) => {
+        end_and_reset(true)
     });
+
+    //Begin monitoring status of schedule creation
+    getStatusInterval = setInterval(get_status, 100);
+}
+
+function end_and_reset(error) {
+    clearInterval(getStatusInterval);
+    submitBtn.disabled = false;
+
+    isRunningText.innerText = 'Not processing...'
+
+    if(error) {
+        statusText.innerText = 'An error occured while making schedules! Please make sure you selected the right CSV files.';
+        statusText.classList.add("error");
+    } else {
+        statusText.innerText = 'Successfully created schedules!';
+        statusText.classList.add("success");
+    }
 }
 
 async function get_status() {

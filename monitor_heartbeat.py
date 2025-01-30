@@ -13,7 +13,7 @@ def monitor_heartbeat():
 
     while True:
         time.sleep(request_period_seconds)
-        print('heartbeat')
+        #print('heartbeat')
         if last_check_in_time != 0 and (time.time() - last_check_in_time >= heartbeat_timeout_seconds):
             terminate_app()
             break

@@ -54,10 +54,6 @@ input[type='file'] {
     text-align: center;
 }
 
-progress {
-    transition: width 0.4s ease;
-}
-
 .section {
     width: 100%;
     max-width: 1000px;
@@ -125,6 +121,20 @@ progress {
     cursor: pointer;
 }
 
+#status {
+    border-radius: 10px;
+}
+
+#status.success {
+    color: green;
+}
+
+#status.error {
+    color: red;
+}
+
 .hide {
     display: none;
 }
+
+
