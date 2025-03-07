@@ -203,7 +203,7 @@ def csv_processing():
             try:
                 assert (period_capacities[period] >= num_students)
             except AssertionError:
-                raise AssertionError(f"Not enough slots for students in period {period}")
+                raise AssertionError(f"Not enough slots for students in period {period}, {period_capacities[period]} < {num_students}")
         master_list = []
         for i in range(len(classes)):
             ohio = []
