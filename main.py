@@ -16,6 +16,11 @@ print(the_list)
 
 # TODO: output to pdf
 # TODO: some output thing
+# TODO: STUDENT LED SEMINAR
+# TODO: Make the google form
+# TODO: Format the seminar data
+
+# TODO: class & room rather than class & capacity
 
 # for lunches:
 # create a class node period 3 and 4 that takes (half?) of the students with weight 0 going to it, any students who choose or are selected for lunch
@@ -39,6 +44,9 @@ preferences_reader = 0
 preferences_csv = 0
 
 studenttograde = {}
+classtocapacity = {
+    
+}
 
 emails = []
 schedules = []
