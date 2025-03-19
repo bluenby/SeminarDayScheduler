@@ -40,6 +40,9 @@ output_directory = ''
 
 csv_file_paths = {}
 
+forms_reader = 0
+forms_csv = 0
+
 preferences_reader = 0
 preferences_csv = 0
 
@@ -105,6 +108,57 @@ def reset():
     classes = []
     class_capacities = [[] for _ in range(num_period)]
     master_list = []
+
+
+
+# very unifinished 'convert form data to preferences data' thing
+# i *should* make this pass directly into csv_processing but i'm lazy :skull:
+# - popop614
+
+def convert_form_to_prefs():
+    global forms_reader, forms_csv
+
+    forms_reader = csv.reader(forms_csv)
+
+    # VERY IMPORTANT TODO FOR THIS STUPID THING LMAO
+    # TODO: give this somewhere to write (I AM SO BAD AT VISUALIZING FILE IO)
+
+    writing_prefs_csv = csv.writer()
+
+    for input in forms_reader:
+        # ideally we have 0 is date, 1 is email, 2 is grade
+
+        email = input[1]
+
+        # COOKED (get the n in nth)
+        # we assume respondent is truthful
+
+        grade = int((input[2].split("/")[1])[0:-2])
+        # TODO: probably check that HERE with the email to grade thing
+
+        # TODO: loop through input and swap it out with actual room numbers
+        
+        finalized_row = [email, grade]
+        cutoff_point = 15
+        if grade > 10.5:
+            cutoff_point = 10
+
+        # schedule is periods 1, 2, 3, 5 or 1, 2, 4, 5 depending on grade
+
+        for i in range(20):
+            if i == cutoff_point:
+                finalized_row += ["LUNCH"]*5
+            # TODO: have room # instead of having "person name - seminar title"
+            finalized_row += [input[i + 20 + 3]]
+        
+        # write preferences to writing_prefs_csv
+
+        writing_prefs_csv.writerow(finalized_row)
+
+
+    # convert that shit
+
+
 
 def csv_processing():
     global num_period, preferences_csv, preferences_reader, studenttograde, classes_reader, classes, class_capacities, emails, master_list, schedules, csv_file_paths
