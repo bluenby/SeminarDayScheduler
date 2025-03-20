@@ -17,7 +17,6 @@ print(the_list)
 # TODO: output to pdf
 # TODO: some output thing
 # TODO: STUDENT LED SEMINAR
-# TODO: Make the google form
 # TODO: Format the seminar data
 
 # TODO: class & room rather than class & capacity
@@ -36,6 +35,8 @@ print(the_list)
 # pre-processing would be adding missing students with random preferences  >>> done, missing students also have the least weight
 # post-processing would be adding missing students into any avaliable seminars
 
+
+
 output_directory = ''
 
 csv_file_paths = {}
@@ -47,8 +48,51 @@ preferences_reader = 0
 preferences_csv = 0
 
 studenttograde = {}
-classtocapacity = {
-    
+roomtocapacity = {
+    "0": 0,
+    "105": 22, 
+    "106": 22, 
+    "107": 22, 
+    "110A": 22, 
+    "110B": 22, 
+    "114": 22, 
+    "115": 22, 
+    "116": 22, 
+    "119": 22, 
+    "120": 22, 
+    "121": 22, 
+    "122": 22, 
+    "123": 22, 
+    "202": 22, 
+    "203": 22, 
+    "204": 22, 
+    "205": 22, 
+    "206": 22, 
+    "207": 22, 
+    "213": 22, 
+    "214": 22, 
+    "215": 22, 
+    "216": 22, 
+    "220": 22, 
+    "221": 22, 
+    "222": 22, 
+    "223": 22, 
+    "224": 22, 
+    "225": 22, 
+    "226": 22, 
+    "227": 22, 
+    "103S": 22, 
+    "105S": 22, 
+    "106S": 22, 
+    "107S": 22, 
+    "109S": 22, 
+    "112S": 22, 
+    "114S": 22, 
+    "Auditorium": 125, 
+    "Band Room": 75, 
+    "Fitness/Weight Room": 25, 
+    "HS Gym": 75, 
+    "Library": 48, 
 }
 
 emails = []
@@ -163,13 +207,17 @@ def csv_processing():
         for aclass in classes_reader:
             print(aclass)
             classes += [aclass[0]]
-            for x, capacity in enumerate(aclass[1:]):
-                class_capacities[x] += [int(capacity)]
-                period_capacities[x] += int(capacity)
+            for x, room in enumerate(aclass[1:]):
+                if room in roomtocapacity.keys():
+                    class_capacities[x] += [int(roomtocapacity[room])]
+                    period_capacities[x] += int(roomtocapacity[room])
+                else:
+                    class_capacities[x] += [int(roomtocapacity[room[:-6].strip()])]
+                    period_capacities[x] += int(roomtocapacity[room[:-6].strip()])
 
         
 
-        # Remove all duplicate students TODO: fill missing students
+        # Remove all duplicate students TODO: fill missing students !!!DONE!!!
         flag = True
         students = []
         rows = []
@@ -211,8 +259,8 @@ def csv_processing():
              
 
         lunches = [
-            ["First Lunch", 0, 0, 0, lunch_capacities[0], 0],
-            ["Second Lunch", 0, 0, 0, 0, lunch_capacities[1]]
+            ["First Lunch", 0, 0, lunch_capacities[1], 0, 0],
+            ["Second Lunch", 0, 0, 0, lunch_capacities[0], 0]
         ]
 
         for lunch in lunches:
@@ -290,8 +338,8 @@ def main(period):
     classes_per_period = 5
 
     #index in the csv where periods start
-    # for example: time, time, CLASS 1 would be index 2
-    initial_index = 2
+    # for example: time, name, grade, CLASS 1 would be index 3
+    initial_index = 3
 
     min_per_class = 1
 
@@ -352,7 +400,7 @@ def main(period):
         if period == 3 and int(studenttograde[student[1]]) < 11:
             for pref in range(5):
                 student[2 + pref + 2 * 5] = "First Lunch"
-        elif period == 4 and int(studenttograde[student[1]]) > 10:
+        elif period == 2 and int(studenttograde[student[1]]) > 10:
             for pref in range(5):
                 student[2 + pref + 3 * 5] = "Second Lunch"
 
